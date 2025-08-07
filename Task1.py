@@ -38,19 +38,40 @@ class UserAccount:
 
 
 def register_account(users):
-    account_number = input("Enter a new account number: ")
-    if account_number in users:
-        print("Account number already exists. Try logging in.")
-        return None
-    pin = input("Set your 4-digit PIN: ")
-    balance = float(input("Enter initial deposit amount: "))
+    while True:
+        account_number = input("Enter a new 11-digit account number: ")
+        if not account_number.isdigit() or len(account_number) != 11:
+            print("Account number must be exactly 11 digits.")
+            continue
+        if account_number in users:
+            print("Account number already exists. Try logging in.")
+            return None
+        break
+
+    while True:
+        pin = input("Set your 4-digit PIN: ")
+        if not pin.isdigit() or len(pin) != 4:
+            print("PIN must be exactly 4 digits.")
+            continue
+        break
+
+    while True:
+        try:
+            balance = float(input("Enter initial deposit amount: "))
+            break
+        except ValueError:
+            print("Please enter a valid number for balance.")
+
     users[account_number] = UserAccount(account_number, pin, balance)
     print("Account created successfully!")
     return users[account_number]
 
 
 def login(users):
-    account_number = input("Enter your account number: ")
+    account_number = input("Enter your 11-digit account number: ")
+    if not account_number.isdigit() or len(account_number) != 11:
+        print("Invalid account number format.")
+        return None
     if account_number not in users:
         print("Account not found. Please register.")
         return None
@@ -83,19 +104,28 @@ def atm_menu(user):
         if choice == "1":
             print("Your Current balance is: ₹", user.check_balance())
         elif choice == "2":
-            amount = float(input("Enter Deposit amount: "))
-            print(user.deposit_amount(amount))
+            try:
+                amount = float(input("Enter Deposit amount: "))
+                print(user.deposit_amount(amount))
+            except ValueError:
+                print("Please enter a valid number.")
         elif choice == "3":
-            amount = float(input("Enter Withdraw amount (max ₹5000 per transaction): "))
-            entered_pin = input("Re-enter your PIN to confirm withdrawal: ")
-            if user.validate_pin(entered_pin):
-                print(user.withdraw_amount(amount))
-            else:
-                print("Incorrect PIN. Withdrawal canceled.")
+            try:
+                amount = float(input("Enter Withdraw amount (max ₹7000 per transaction): "))
+                entered_pin = input("Re-enter your PIN to confirm withdrawal: ")
+                if user.validate_pin(entered_pin):
+                    print(user.withdraw_amount(amount))
+                else:
+                    print("Incorrect PIN. Withdrawal canceled.")
+            except ValueError:
+                print("Please enter a valid number.")
         elif choice == "4":
             current_pin = input("Enter your current PIN: ")
-            new_pin = input("Enter your new PIN: ")
-            print(user.change_pin(current_pin, new_pin))
+            new_pin = input("Enter your new 4-digit PIN: ")
+            if not new_pin.isdigit() or len(new_pin) != 4:
+                print("New PIN must be exactly 4 digits.")
+            else:
+                print(user.change_pin(current_pin, new_pin))
         elif choice == "5":
             print("Logging out...")
             break
